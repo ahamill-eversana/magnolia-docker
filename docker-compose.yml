@@ -1,0 +1,35 @@
+services:
+  author:
+    image: tomcat:9.0.106-jdk21-temurin
+    container_name: magnolia-author
+    ports:
+      - "8080:8080"
+    environment:
+      CATALINA_OPTS: >-
+        -Xms1024m -Xmx3072m
+        -Djava.awt.headless=true
+        -Dmagnolia.update.auto=true
+        -Dmagnolia.develop=true
+        -Dmagnolia.resources.dir=/magnolia/light-modules
+        -Dmagnolia.repositories.home=/magnolia/data/repositories
+    entrypoint: ["/bin/sh", "/docker/entrypoint.sh"]
+    volumes:
+      - ${MAGNOLIA_WAR_PATH:-./bundle/ROOT.war}:/bundle/ROOT.war:ro
+      - ./docker/entrypoint.sh:/docker/entrypoint.sh:ro
+      - ${LM_REPO_DIR:-./light-modules}:/magnolia/light-modules
+      - ${MAGNOLIA_DATA_DIR:-./data}:/magnolia/data
+    restart: unless-stopped
+
+  lm-dev:
+    image: node:20-alpine
+    container_name: magnolia-lm-dev
+    working_dir: /workspace
+    command: sh -lc "npm run start"
+    volumes:
+      - ${LM_DEV_DIR:-./light-modules}:/workspace
+    ports:
+      - "${LM_DEV_PORT:-5173}:5173"
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+      WATCHPACK_POLLING: "true"
+    restart: unless-stopped

@@ -1,0 +1,13 @@
+bundle/
+!bundle/.gitkeep
+
+# Local environment overrides
+.env
+
+# Keep folder, ignore content unless explicitly committed
+light-modules/*
+!light-modules/.gitkeep
+
+# Magnolia data directory (default local mount)
+data/*
+!data/.gitkeep
