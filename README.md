@@ -32,16 +32,14 @@ Then edit .env:
 MAGNOLIA_WAR_PATH=/absolute/path/to/local.war
 MAGNOLIA_DATA_DIR=/absolute/path/to/existing/magnolia-data
 LM_REPO_DIR=/absolute/path/to/existing/light-modules-repo
-LM_DEV_DIR=/absolute/path/to/existing/light-modules-repo/sanofi-lm-dupixent
-LM_DEV_PORT=5173
 ```
 
 Notes:
 - MAGNOLIA_WAR_PATH points to your Magnolia author WAR on the host.
 - MAGNOLIA_DATA_DIR should point to the Magnolia data root (folder containing repositories, etc.).
 - LM_REPO_DIR should point to the folder that contains your light module directories.
-- LM_DEV_DIR should point to the LM project root that contains package.json for npm run dev.
-- Defaults (if unset): ./bundle/ROOT.war, ./data, ./light-modules, ./light-modules, 5173.
+- The LM dev service and helper script always use `${LM_REPO_DIR}/sanofi-lm-dupixent`.
+- Defaults (if unset): ./bundle/ROOT.war, ./data, ./light-modules.
 
 ## Start Magnolia
 
@@ -54,7 +52,7 @@ docker compose up -d
 
 This starts:
 - `author` (Magnolia)
-- `lm-dev` (runs `npm run start` in `LM_DEV_DIR`)
+- `lm-dev` (runs `npm run start` in `${LM_REPO_DIR}/sanofi-lm-dupixent`)
 
 3. Follow logs during first startup (can take a few minutes):
 
@@ -68,7 +66,7 @@ docker compose logs -f author
 
 ## Run LM dev script
 
-To run the LM start command in the repo configured by `LM_REPO_DIR`:
+To run the LM start command in `${LM_REPO_DIR}/sanofi-lm-dupixent`:
 
 ```bash
 ./scripts/lm-dev.sh
@@ -103,6 +101,6 @@ If you use external folders via `.env` (`MAGNOLIA_DATA_DIR` / `LM_REPO_DIR`), cl
 - Persisted data is mounted to /magnolia/data from ${MAGNOLIA_DATA_DIR:-./data}.
 - Light modules are mounted to /magnolia/light-modules from ${LM_REPO_DIR:-./light-modules}.
 - WAR is mounted from ${MAGNOLIA_WAR_PATH:-./bundle/ROOT.war}.
-- LM dev service runs in ${LM_DEV_DIR:-./light-modules} and publishes ${LM_DEV_PORT:-5173}.
+ - LM dev service runs in ${LM_REPO_DIR:-./light-modules}/sanofi-lm-dupixent.
 - JVM options are set via CATALINA_OPTS in docker-compose.yml.
 - Container startup validates the mounted WAR exists and exits with a clear error if it is missing.
