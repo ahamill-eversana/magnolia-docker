@@ -101,6 +101,6 @@ If you use external folders via `.env` (`MAGNOLIA_DATA_DIR` / `LM_REPO_DIR`), cl
 - Persisted data is mounted to /magnolia/data from ${MAGNOLIA_DATA_DIR:-./data}.
 - Light modules are mounted to /magnolia/light-modules from ${LM_REPO_DIR:-./light-modules}.
 - WAR is mounted from ${MAGNOLIA_WAR_PATH:-./bundle/ROOT.war}.
- - LM dev service runs in ${LM_REPO_DIR:-./light-modules}/sanofi-lm-dupixent.
+- LM dev service runs in ${LM_REPO_DIR:-./light-modules}/sanofi-lm-dupixent.
 - JVM options are set via CATALINA_OPTS in docker-compose.yml.
 - Container startup validates the mounted WAR exists and exits with a clear error if it is missing.

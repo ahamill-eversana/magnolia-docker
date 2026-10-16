@@ -29,10 +29,12 @@ case "$LM_REPO_DIR" in
     ;;
 esac
 
-if [ ! -d "$LM_REPO_DIR" ]; then
-  echo "ERROR: LM_REPO_DIR does not exist: $LM_REPO_DIR"
+LM_DEV_DIR="$LM_REPO_DIR/sanofi-lm-dupixent"
+
+if [ ! -d "$LM_DEV_DIR" ]; then
+  echo "ERROR: LM repo does not exist: $LM_DEV_DIR"
   exit 1
 fi
 
-cd "$LM_REPO_DIR"
+cd "$LM_DEV_DIR"
 exec npm run start

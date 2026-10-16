@@ -11,3 +11,5 @@ light-modules/*
 # Magnolia data directory (default local mount)
 data/*
 !data/.gitkeep
+
+*.war
