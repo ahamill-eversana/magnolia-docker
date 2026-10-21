@@ -12,6 +12,7 @@ services:
         -Dmagnolia.develop=true
         -Dmagnolia.resources.dir=/magnolia/light-modules
         -Dmagnolia.repositories.home=/magnolia/data/repositories
+        -Dmagnolia.cookie.csrf.secure=false
     entrypoint: ["/bin/sh", "/docker/entrypoint.sh"]
     volumes:
       - ${MAGNOLIA_WAR_PATH:-./bundle/ROOT.war}:/bundle/ROOT.war:ro
