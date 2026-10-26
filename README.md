@@ -16,6 +16,43 @@ Default local structure:
 - light-modules/ (optional default local folder for file system modules)
 - data/ (optional default local Magnolia data folder)
 
+## Containers
+
+`docker compose up -d` starts two containers:
+
+| Service | Container | Purpose |
+|---------|-----------|---------|
+| `author` | `magnolia-author` | Runs Magnolia DX Core 6.3.17 (author) on Tomcat 9 / JDK 21. Mounts your WAR as `ROOT.war` (read-only), your home folder at `/magnolia/data` (repositories persist on your Mac) and your light-modules repo at `/magnolia/light-modules`. Served on http://localhost:8080. |
+| `lm-dev` | `magnolia-lm-dev` | Node 20 container that runs `npm run start` in `sanofi-lm-dupixent` inside your light-modules repo. It watches and builds front-end assets, writing changes into the shared folder so Magnolia picks them up without a restart. Uses polling for file watching because file events don't propagate reliably into Docker on macOS. |
+
+Both containers share the same `LM_REPO_DIR` folder, which is how front-end changes reach Magnolia.
+
+## Where to put your files (macOS)
+
+Docker can only mount folders it has been granted access to. By default Docker Desktop on macOS shares `/Users`, `/Volumes`, `/private`, `/tmp` and `/var/folders`. Keep the WAR, Magnolia home folder and light-modules repo under your home directory (for example `~/Projects`) to avoid mount errors.
+
+Recommended layout:
+
+```
+~/Projects/
+├── magnolia-docker/          (this repo)
+└── magnolia/
+    ├── local.war             (Magnolia author WAR)
+    ├── home/                 (Magnolia data/home folder, contains repositories/)
+    └── light-modules/        (repo containing sanofi-lm-dupixent)
+```
+
+Guidance:
+- Do NOT use protected locations such as `~/Desktop`, `~/Documents`, `~/Downloads` or iCloud Drive unless Docker Desktop has been granted access in System Settings > Privacy & Security > Files and Folders (or Full Disk Access). Otherwise mounts may appear empty or fail with permission errors.
+- Avoid paths outside the shared locations (e.g. external drives not under `/Volumes`). If you must use one, add it in Docker Desktop > Settings > Resources > File sharing, then Apply & restart.
+- Use absolute paths in `.env`. Run `pwd` in Terminal inside each folder to get its full path (e.g. `/Users/<you>/Projects/magnolia/home`). `~` is not expanded in `.env`.
+- The WAR must be a file, not a folder, and the home and light-modules paths must be existing folders.
+- Quick check that Docker can see a folder:
+
+```bash
+docker run --rm -v /Users/<you>/Projects/magnolia:/check alpine ls /check
+```
+
 ## Configure host paths
 
 Set environment variables in .env next to docker-compose.yml.
@@ -29,9 +66,9 @@ cp .env.example .env
 Then edit .env:
 
 ```dotenv
-MAGNOLIA_WAR_PATH=/absolute/path/to/local.war
-MAGNOLIA_DATA_DIR=/absolute/path/to/existing/magnolia-data
-LM_REPO_DIR=/absolute/path/to/existing/light-modules-repo
+MAGNOLIA_WAR_PATH=/Users/<you>/Projects/magnolia/local.war
+MAGNOLIA_DATA_DIR=/Users/<you>/Projects/magnolia/home
+LM_REPO_DIR=/Users/<you>/Projects/magnolia/light-modules
 ```
 
 Notes:
