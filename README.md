@@ -4,34 +4,30 @@ This setup runs a Magnolia DX Core 6.3.17 author instance locally in Docker usin
 - Apache Tomcat 9.0.106
 - H2 (file-based, default Magnolia behavior)
 
+## Get this repository
+
+Clone the repository and enter its directory:
+
+```bash
+git clone https://github.com/ahamill-eversana/magnolia-docker.git
+cd magnolia-docker
+```
+
+Alternatively, download the repository as a ZIP from [GitHub](https://github.com/ahamill-eversana/magnolia-docker), extract it, and open a terminal in the extracted `magnolia-docker` directory.
+
 ## Prerequisites
 
-- Docker Desktop running
-- Magnolia DX Core 6.3.17 author WAR from your licensed bundle
-
-## Folder layout
-
-Default local structure:
-- bundle/ROOT.war (optional if MAGNOLIA_WAR_PATH is set)
-- light-modules/ (optional default local folder for file system modules)
-- data/ (optional default local Magnolia data folder)
-
-## Containers
-
-`./scripts/start.sh` (`docker compose up -d`) starts two containers:
-
-| Service | Container | Purpose |
-|---------|-----------|---------|
-| `author` | `magnolia-author` | Runs Magnolia DX Core 6.3.17 (author) on Tomcat 9 / JDK 21. Mounts your WAR as `ROOT.war` (read-only), your home folder at `/magnolia/data` (repositories persist on your Mac) and your light-modules repo at `/magnolia/light-modules`. Served on http://localhost:8080. |
-| `lm-dev` | `magnolia-lm-dev` | Node 20 container that runs `npm run start` in `sanofi-lm-dupixent` inside your light-modules repo. It watches and builds front-end assets, writing changes into the shared folder so Magnolia picks them up without a restart. Uses polling for file watching because file events don't propagate reliably into Docker on macOS. |
-
-Both containers share the same `LM_REPO_DIR` folder, which is how front-end changes reach Magnolia.
+- This repository cloned or downloaded to your computer (see [Get this repository](#get-this-repository)).
+- Docker Desktop installed and running.
+- Magnolia DX Core 6.3.17 author WAR from your licensed bundle.
+- An existing Magnolia data/home folder for the database and repository files.
+- The `sanofi-lm-dupixent` light-module repository.
 
 ## Where to put your files (macOS)
 
-Docker can only mount folders it has been granted access to. By default Docker Desktop on macOS shares `/Users`, `/Volumes`, `/private`, `/tmp` and `/var/folders`. Keep the WAR, Magnolia home folder and light-modules repo under your home directory (for example `~/Projects`) to avoid mount errors.
+First, keep the WAR, Magnolia data/home folder, and light-module repository in a location Docker Desktop can access. By default, Docker Desktop on macOS shares `/Users`, `/Volumes`, `/private`, `/tmp`, and `/var/folders`. A simple choice is a `Projects` folder in your home directory.
 
-Recommended layout:
+For example, if you cloned this repository into `~/Projects`, arrange the files like this. The `magnolia-docker` folder is the repository you cloned; the separate `magnolia` folder holds the WAR, data, and light modules:
 
 ```
 ~/Projects/
@@ -42,28 +38,21 @@ Recommended layout:
     └── light-modules/        (repo containing sanofi-lm-dupixent)
 ```
 
-Guidance:
-- Do NOT use protected locations such as `~/Desktop`, `~/Documents`, `~/Downloads` or iCloud Drive unless Docker Desktop has been granted access in System Settings > Privacy & Security > Files and Folders (or Full Disk Access). Otherwise mounts may appear empty or fail with permission errors.
-- Avoid paths outside the shared locations (e.g. external drives not under `/Volumes`). If you must use one, add it in Docker Desktop > Settings > Resources > File sharing, then Apply & restart.
-- Use absolute paths in `.env`. Run `pwd` in Terminal inside each folder to get its full path (e.g. `/Users/<you>/Projects/magnolia/home`). `~` is not expanded in `.env`.
-- The WAR must be a file, not a folder, and the home and light-modules paths must be existing folders.
-- Quick check that Docker can see a folder:
+The `home` folder must already exist and be your Magnolia data/home directory (the folder containing `repositories/`). The `light-modules` folder must contain `sanofi-lm-dupixent`, and `local.war` must be the WAR file itself, not a folder.
 
-```bash
-docker run --rm -v /Users/<you>/Projects/magnolia:/check alpine ls /check
-```
+Avoid protected locations such as `~/Desktop`, `~/Documents`, `~/Downloads`, or iCloud Drive unless you have granted Docker Desktop access in System Settings > Privacy & Security. For another location, make sure it is shared in Docker Desktop settings.
 
-## Configure host paths
+## Configure the paths
 
-Set environment variables in .env next to docker-compose.yml.
+In Terminal, make sure you are in the `magnolia-docker` folder you cloned (the folder containing `docker-compose.yml`). Create the local `.env` file there:
 
-Example:
-
-```bash
+```sh
 cp .env.example .env
 ```
 
-Then edit .env:
+If Terminal is not already in that folder, use `cd` to go there first. For example, if you cloned the repository into `~/Projects`, run `cd ~/Projects/magnolia-docker`.
+
+Open `.env` in a text editor and set these paths to match where you put your files. Use full paths (starting with `/Users/...`); do not use `~`:
 
 ```dotenv
 MAGNOLIA_WAR_PATH=/Users/<you>/Projects/magnolia/local.war
@@ -71,77 +60,41 @@ MAGNOLIA_DATA_DIR=/Users/<you>/Projects/magnolia/home
 LM_REPO_DIR=/Users/<you>/Projects/magnolia/light-modules
 ```
 
-Notes:
-- MAGNOLIA_WAR_PATH points to your Magnolia author WAR on the host.
-- MAGNOLIA_DATA_DIR should point to the Magnolia data root (folder containing repositories, etc.).
-- LM_REPO_DIR should point to the folder that contains your light module directories.
-- The LM dev service and helper script always use `${LM_REPO_DIR}/sanofi-lm-dupixent`.
-- Defaults (if unset): ./bundle/ROOT.war, ./data, ./light-modules.
+Change `<you>` to your macOS account name and adjust the paths if your folders are somewhere else. For example, if you are unsure of a folder's full path, open that folder in Terminal and run `pwd`.
 
 ## Start Magnolia
 
-1. Ensure WAR is available via MAGNOLIA_WAR_PATH or at bundle/ROOT.war.
-2. Start services with the preflight script:
+Make sure Docker Desktop is running. In Terminal, from inside the `magnolia-docker` folder, run:
 
 ```bash
 ./scripts/start.sh
 ```
 
-It checks that the WAR file, Magnolia home folder and `sanofi-lm-dupixent` light module exist. If any is missing, it prints what is wrong and how to fix it, and nothing is started. If all pass, it runs `docker compose up -d`.
-
-Running `docker compose up -d` directly also refuses to start when a mounted path is missing (Docker will not create it), but with a terser error.
-
-This starts:
-- `author` (Magnolia)
-- `lm-dev` (runs `npm run start` in `${LM_REPO_DIR}/sanofi-lm-dupixent`)
-
-3. Follow logs during first startup (can take a few minutes):
+The script checks that the WAR, home folder, light-modules folder, and `sanofi-lm-dupixent` module exist. If something is missing, it reports the problem and does not start the containers. The first startup can take a few minutes; follow the Magnolia logs with:
 
 ```bash
 docker compose logs -f author
 ```
 
-4. Open Magnolia:
+When startup finishes, open Magnolia:
 
-- Login UI: http://localhost:8080/magnoliaAuthor
+- http://localhost:8080
 
-## Run LM dev script
+## What gets started
 
-To run the LM start command in `${LM_REPO_DIR}/sanofi-lm-dupixent`:
+The start script launches two containers:
 
-```bash
-./scripts/lm-dev.sh
-```
+| Service | Container | Purpose |
+|---------|-----------|---------|
+| `author` | `magnolia-author` | Runs Magnolia DX Core 6.3.17 on Tomcat 9 / JDK 21. Your WAR is mounted read-only as `ROOT.war`; your data/home folder is mounted at `/magnolia/data`, and your light modules at `/magnolia/light-modules`. Magnolia is served at http://localhost:8080. |
+| `lm-dev` | `magnolia-lm-dev` | Runs `npm run start` in `sanofi-lm-dupixent` using Node 20. It watches and builds front-end assets in the shared light-modules folder so Magnolia can pick up changes. |
 
-Or use Compose logs for the managed dev service:
+Both containers share the light-modules folder. File watching uses polling because file events do not reliably propagate into Docker on macOS.
 
-```bash
-docker compose logs -f lm-dev
-```
-
-## Stop / reset
+## Stop
 
 Stop:
 
 ```bash
 docker compose down
 ```
-
-Fresh start (default local bind mounts):
-
-```bash
-docker compose down
-rm -rf ./data/* ./light-modules/*
-touch ./data/.gitkeep ./light-modules/.gitkeep
-```
-
-If you use external folders via `.env` (`MAGNOLIA_DATA_DIR` / `LM_REPO_DIR`), clean those paths directly instead.
-
-## Notes
-
-- Persisted data is mounted to /magnolia/data from ${MAGNOLIA_DATA_DIR:-./data}.
-- Light modules are mounted to /magnolia/light-modules from ${LM_REPO_DIR:-./light-modules}.
-- WAR is mounted from ${MAGNOLIA_WAR_PATH:-./bundle/ROOT.war}.
-- LM dev service runs in ${LM_REPO_DIR:-./light-modules}/sanofi-lm-dupixent.
-- JVM options are set via CATALINA_OPTS in docker-compose.yml.
-- Container startup validates the mounted WAR exists and exits with a clear error if it is missing.
