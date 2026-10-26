@@ -40,7 +40,7 @@ For example, if you cloned this repository into `~/Projects`, arrange the files 
 
 The `home` folder must already exist and be your Magnolia data/home directory (the folder containing `repositories/`). The `light-modules` folder must contain `sanofi-lm-dupixent`, and `local.war` must be the WAR file itself, not a folder.
 
-Avoid protected locations such as `~/Desktop`, `~/Documents`, `~/Downloads`, or iCloud Drive unless you have granted Docker Desktop access in System Settings > Privacy & Security. For another location, make sure it is shared in Docker Desktop settings.
+macOS may restrict Docker Desktop's access to protected locations such as `~/Desktop`, `~/Documents`, `~/Downloads`, or iCloud Drive. If a mount from one of these locations is denied, check System Settings > Privacy & Security and grant Docker Desktop access if prompted. Docker Desktop shares `/Users` by default; if you keep these files outside its shared locations, add the folder in Docker Desktop > Settings > Resources > File sharing.
 
 ## Configure the paths
 
