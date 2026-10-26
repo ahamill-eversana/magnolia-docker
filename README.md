@@ -18,7 +18,7 @@ Default local structure:
 
 ## Containers
 
-`docker compose up -d` starts two containers:
+`./scripts/start.sh` (`docker compose up -d`) starts two containers:
 
 | Service | Container | Purpose |
 |---------|-----------|---------|
@@ -81,11 +81,15 @@ Notes:
 ## Start Magnolia
 
 1. Ensure WAR is available via MAGNOLIA_WAR_PATH or at bundle/ROOT.war.
-2. Start services:
+2. Start services with the preflight script:
 
 ```bash
-docker compose up -d
+./scripts/start.sh
 ```
+
+It checks that the WAR file, Magnolia home folder and `sanofi-lm-dupixent` light module exist. If any is missing, it prints what is wrong and how to fix it, and nothing is started. If all pass, it runs `docker compose up -d`.
+
+Running `docker compose up -d` directly also refuses to start when a mounted path is missing (Docker will not create it), but with a terser error.
 
 This starts:
 - `author` (Magnolia)

@@ -15,10 +15,23 @@ services:
         -Dmagnolia.cookie.csrf.secure=false
     entrypoint: ["/bin/sh", "/docker/entrypoint.sh"]
     volumes:
-      - ${MAGNOLIA_WAR_PATH:-./bundle/ROOT.war}:/bundle/ROOT.war:ro
+      - type: bind
+        source: ${MAGNOLIA_WAR_PATH:-./bundle/ROOT.war}
+        target: /bundle/ROOT.war
+        read_only: true
+        bind:
+          create_host_path: false
       - ./docker/entrypoint.sh:/docker/entrypoint.sh:ro
-      - ${LM_REPO_DIR:-./light-modules}:/magnolia/light-modules
-      - ${MAGNOLIA_DATA_DIR:-./data}:/magnolia/data
+      - type: bind
+        source: ${LM_REPO_DIR:-./light-modules}
+        target: /magnolia/light-modules
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${MAGNOLIA_DATA_DIR:-./data}
+        target: /magnolia/data
+        bind:
+          create_host_path: false
     restart: unless-stopped
 
   lm-dev:
@@ -27,7 +40,11 @@ services:
     working_dir: /workspace/sanofi-lm-dupixent
     command: sh -lc "npm run start"
     volumes:
-      - ${LM_REPO_DIR:-./light-modules}:/workspace
+      - type: bind
+        source: ${LM_REPO_DIR:-./light-modules}
+        target: /workspace
+        bind:
+          create_host_path: false
     environment:
       CHOKIDAR_USEPOLLING: "true"
       WATCHPACK_POLLING: "true"
