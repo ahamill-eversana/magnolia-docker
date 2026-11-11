@@ -19,15 +19,15 @@ Alternatively, download the repository as a ZIP from [GitHub](https://github.com
 
 - This repository cloned or downloaded to your computer (see [Get this repository](#get-this-repository)).
 - Docker Desktop installed and running.
-- Magnolia DX Core 6.3.17 author WAR from your licensed bundle.
-- An existing Magnolia data/home folder for the database and repository files.
+- Magnolia DX Core 6.3.17 author WAR from your licensed bundle (local.war).
+- An existing Magnolia data/home folder for the database.
 - The `sanofi-lm-dupixent` light-module repository.
 
 ## Where to put your files (macOS)
 
 First, keep the WAR, Magnolia data/home folder, and light-module repository in a location Docker Desktop can access. By default, Docker Desktop on macOS shares `/Users`, `/Volumes`, `/private`, `/tmp`, and `/var/folders`. A simple choice is a `Projects` folder in your home directory.
 
-For example, if you cloned this repository into `~/Projects`, arrange the files like this. The `magnolia-docker` folder is the repository you cloned; the separate `magnolia` folder holds the WAR, data, and light modules:
+For example, if you cloned this repository into `~/Projects`, arrange the files like this. The `magnolia-docker` folder is the repository you cloned; the separate `magnolia` folder holds the WAR, home folder, and light modules repo:
 
 ```
 ~/Projects/
